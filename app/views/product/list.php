@@ -2,7 +2,9 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
     <h1>Danh sách sản phẩm</h1>
-    <a href="/TranCongTien_4894/index.php?url=Product/add" class="btn btn-success">Thêm sản phẩm mới</a>
+    <?php if (SessionHelper::isAdmin()): ?>
+        <a href="/TranCongTien_4894/index.php?url=Product/add" class="btn btn-success">Thêm sản phẩm mới</a>
+    <?php endif; ?>
 </div>
 
 <ul class="list-group">
@@ -36,9 +38,14 @@
             <div class="mt-3">
     <a href="/TranCongTien_4894/index.php?url=Product/show/<?php echo $product->id; ?>" class="btn btn-info text-white">Xem</a>
     
-    <a href="/TranCongTien_4894/index.php?url=Cart/add/<?php echo $product->id; ?>" class="btn btn-primary mx-1">Thêm vào giỏ</a>
-    <a href="/TranCongTien_4894/index.php?url=Product/edit/<?php echo $product->id; ?>" class="btn btn-warning">Sửa</a>
-    <a href="/TranCongTien_4894/index.php?url=Product/delete/<?php echo $product->id; ?>" class="btn btn-danger mx-1" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
+    <?php if (!SessionHelper::isAdmin()): ?>
+        <a href="/TranCongTien_4894/index.php?url=Cart/add/<?php echo $product->id; ?>" class="btn btn-primary mx-1">Thêm vào giỏ</a>
+    <?php endif; ?>
+    
+    <?php if (SessionHelper::isAdmin()): ?>
+        <a href="/TranCongTien_4894/index.php?url=Product/edit/<?php echo $product->id; ?>" class="btn btn-warning">Sửa</a>
+        <a href="/TranCongTien_4894/index.php?url=Product/delete/<?php echo $product->id; ?>" class="btn btn-danger mx-1" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
+    <?php endif; ?>
 </div>
             
         </li> 

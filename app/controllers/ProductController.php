@@ -37,8 +37,102 @@ public function add()
 $categories = (new CategoryModel($this->db))->getCategories();
 include_once 'app/views/product/add.php';
 }
-// Hàm hỗ trợ xử lý file upload - Đã chuyển hướng sang thư mục public/images/
-private function uploadFile($file_input)
+// Hàm hỗ trợ nén và đổi kích thước hình ảnh sử dụng thư viện GD
+    private function compressAndResizeImage($sourcePath, $targetPath, $maxWidth = 1200, $maxHeight = 1200, $quality = 80)
+    {
+        $imageInfo = @getimagesize($sourcePath);
+        if (!$imageInfo) {
+            return false;
+        }
+
+        $mime = $imageInfo['mime'];
+        $width = $imageInfo[0];
+        $height = $imageInfo[1];
+
+        // Tạo đối tượng hình ảnh từ nguồn tương ứng với định dạng
+        switch ($mime) {
+            case 'image/jpeg':
+            case 'image/jpg':
+                $image = @imagecreatefromjpeg($sourcePath);
+                break;
+            case 'image/png':
+                $image = @imagecreatefrompng($sourcePath);
+                break;
+            case 'image/gif':
+                $image = @imagecreatefromgif($sourcePath);
+                break;
+            case 'image/webp':
+                if (function_exists('imagecreatefromwebp')) {
+                    $image = @imagecreatefromwebp($sourcePath);
+                } else {
+                    return false;
+                }
+                break;
+            default:
+                return false;
+        }
+
+        if (!$image) {
+            return false;
+        }
+
+        // Tính toán tỷ lệ kích thước mới
+        $newWidth = $width;
+        $newHeight = $height;
+
+        if ($width > $maxWidth || $height > $maxHeight) {
+            $ratio = $width / $height;
+            if ($ratio > 1) {
+                $newWidth = $maxWidth;
+                $newHeight = round($maxWidth / $ratio);
+            } else {
+                $newHeight = $maxHeight;
+                $newWidth = round($maxHeight * $ratio);
+            }
+        }
+
+        // Tạo khung ảnh mới true color
+        $newImage = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Giữ độ trong suốt (transparency) cho PNG và GIF
+        if ($mime == 'image/png' || $mime == 'image/gif') {
+            imagealphablending($newImage, false);
+            imagesavealpha($newImage, true);
+            $transparent = imagecolorallocatealpha($newImage, 255, 255, 255, 127);
+            imagefilledrectangle($newImage, 0, 0, $newWidth, $newHeight, $transparent);
+        }
+
+        // Copy và đổi kích thước hình ảnh
+        imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        // Lưu hình ảnh đã tối ưu hóa
+        $success = false;
+        switch ($mime) {
+            case 'image/jpeg':
+            case 'image/jpg':
+                $success = imagejpeg($newImage, $targetPath, $quality);
+                break;
+            case 'image/png':
+                $pngQuality = round((100 - $quality) / 10); // Lân cận chất lượng PNG từ 0 đến 9
+                $success = imagepng($newImage, $targetPath, $pngQuality);
+                break;
+            case 'image/gif':
+                $success = imagegif($newImage, $targetPath);
+                break;
+            case 'image/webp':
+                $success = imagewebp($newImage, $targetPath, $quality);
+                break;
+        }
+
+        // Giải phóng bộ nhớ giải thuật ảnh
+        imagedestroy($image);
+        imagedestroy($newImage);
+
+        return $success;
+    }
+
+    // Hàm hỗ trợ xử lý file upload - Đã chuyển hướng sang thư mục public/images/ và thêm tối ưu hóa hình ảnh
+    private function uploadFile($file_input)
     {
         if (isset($file_input) && $file_input['error'] === UPLOAD_ERR_OK) {
             // Đường dẫn trỏ thẳng vào thư mục images bạn đã tạo
@@ -48,6 +142,16 @@ private function uploadFile($file_input)
             $fileName = time() . '_' . basename($file_input['name']);
             $targetPath = $uploadDir . $fileName;
 
+            // Kiểm tra xem có phải định dạng ảnh để tối ưu hóa không
+            $imageInfo = @getimagesize($file_input['tmp_name']);
+            if ($imageInfo) {
+                // Tự động nén và điều chỉnh kích thước ảnh về tối đa 1200px để giảm dung lượng file xuống dưới 200-300KB
+                if ($this->compressAndResizeImage($file_input['tmp_name'], $targetPath, 1200, 1200, 80)) {
+                    return $targetPath;
+                }
+            }
+
+            // Nếu không tối ưu được hoặc không phải là hình ảnh được hỗ trợ, tiến hành copy thô thông thường
             if (move_uploaded_file($file_input['tmp_name'], $targetPath)) {
                 return $targetPath; // Trả về chuỗi có dạng: public/images/1716715xxx_tenanh.jpg
             }

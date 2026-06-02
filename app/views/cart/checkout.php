@@ -13,6 +13,11 @@
                 <label class="font-weight-bold">Số điện thoại liên hệ:</label>
                 <input type="text" name="customer_phone" class="form-control mt-1" required placeholder="Nhập số điện thoại...">
             </div>
+
+            <div class="form-group mt-3">
+                <label class="font-weight-bold">Địa chỉ giao hàng:</label>
+                <input type="text" name="customer_address" class="form-control mt-1" required placeholder="Nhập địa chỉ giao hàng...">
+            </div>
             
             <button type="submit" class="btn btn-success btn-lg btn-block mt-4 w-100">
                 Xác nhận Đặt hàng & Thanh toán tự động

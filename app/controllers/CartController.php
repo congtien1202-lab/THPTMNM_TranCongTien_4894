@@ -88,6 +88,7 @@ class CartController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['customer_name'];
             $phone = $_POST['customer_phone'];
+            $address = $_POST['customer_address'] ?? '';
 
             $totalAmount = 0;
             $items = [];
@@ -106,7 +107,7 @@ class CartController
             }
 
             // A. Tạo đơn hàng vào Database
-            $order_id = $this->orderModel->createOrder($name, $phone, $totalAmount);
+            $order_id = $this->orderModel->createOrder($name, $phone, $address, $totalAmount);
 
             if ($order_id) {
                 // B. Lưu các sản phẩm trong giỏ vào đơn

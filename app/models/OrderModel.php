@@ -9,13 +9,14 @@ class OrderModel
     }
 
     // Tạo đơn hàng mới với trạng thái mặc định là 'Pending' (Chờ xử lý)
-    public function createOrder($name, $phone, $total_amount)
+    public function createOrder($name, $phone, $address, $total_amount)
     {
-        $query = "INSERT INTO orders (customer_name, customer_phone, total_amount, payment_status) 
-                  VALUES (:name, :phone, :total_amount, 'Pending')";
+        $query = "INSERT INTO orders (customer_name, customer_phone, customer_address, total_amount, payment_status) 
+                  VALUES (:name, :phone, :address, :total_amount, 'Pending')";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':phone', $phone);
+        $stmt->bindParam(':address', $address);
         $stmt->bindParam(':total_amount', $total_amount);
         $stmt->execute();
         
