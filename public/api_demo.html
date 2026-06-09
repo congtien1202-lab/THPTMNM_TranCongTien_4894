@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tách Tách Store - API Client Dashboard</title>
+  <!-- Google Fonts: Outfit & Inter -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --accent-color: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .font-title {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Glassmorphism Navbar */
+    .custom-nav {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    /* Card Styling */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-glow);
+    }
+
+    /* Product Image Container */
+    .product-img-container {
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .glass-card:hover .product-img {
+      transform: scale(1.08);
+    }
+
+    .category-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* Inputs & Buttons Styling */
+    .form-control,
+    .form-select {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      border-radius: 10px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      background: rgba(15, 23, 42, 0.8);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      color: var(--text-main);
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      border: none;
+      color: white;
+      font-weight: 600;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5);
+      color: white;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      color: var(--text-main);
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .modal-footer {
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* Custom Toast Container */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1090;
+    }
+
+    .custom-toast {
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(8px);
+      border-left: 5px solid var(--accent-color);
+      color: var(--text-main);
+      min-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Cart Drawer */
+    .cart-drawer {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-left: 1px solid var(--card-border);
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: 420px;
+      height: 100vh;
+      z-index: 1040;
+      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .cart-drawer.active {
+      right: 0;
+    }
+
+    .cart-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1035;
+      display: none;
+    }
+
+    /* Micro-animations */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .pulse-effect {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Cart Backdrop -->
+  <div class="cart-backdrop" id="cartBackdrop"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <i class="fa-solid fa-bolt me-2 pulse-effect" style="color: #c084fc;"></i>
+        Tách Tách Store
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" id="btnShowCatalog"><i class="fa-solid fa-store me-1"></i> Sản phẩm</a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-3">
+          <!-- Cart Button -->
+          <button class="btn btn-outline-light position-relative px-3 py-2" style="border-radius: 10px;"
+            id="btnOpenCart">
+            <i class="fa-solid fa-cart-shopping me-1"></i>
+            <span class="d-none d-sm-inline">Giỏ hàng</span>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              id="cartBadge">0</span>
+          </button>
+
+          <!-- Auth Section -->
+          <div id="authSection" class="d-flex align-items-center gap-2">
+            <!-- Loading state by default -->
+            <button class="btn btn-outline-light btn-sm" id="btnShowLoginModal">Đăng nhập</button>
+            <button class="btn btn-gradient btn-sm" id="btnShowRegisterModal">Đăng ký</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="container my-5 text-center">
+    <div class="py-4">
+      <h1 class="display-4 font-title fw-extrabold mb-3">Kết Nối &amp; Trải Nghiệm Qua Lăng Kính</h1>
+      <p class="lead text-secondary mx-auto" style="max-width: 700px;">
+
+      </p>
+      <div id="adminControlsContainer" class="mt-4 d-none">
+        <button class="btn btn-gradient px-4 py-2" id="btnOpenAddProductModal">
+          <i class="fa-solid fa-plus-circle me-1"></i> Thêm sản phẩm mới (Quyền Admin)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="container mb-5">
+    <h3 class="font-title fw-bold mb-4"><i class="fa-solid fa-box-open me-2" style="color: var(--accent-color);"></i>
+      Danh sách sản phẩm</h3>
+    <div class="row g-4" id="productsContainer">
+      <!-- Dynamic Products Inserted Here -->
+    </div>
+  </div>
+
+  <!-- Shopping Cart Drawer -->
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="p-4 d-flex flex-column h-100">
+      <div class="d-flex justify-content-between align-items-center pb-3 border-bottom border-secondary">
+        <h4 class="font-title fw-bold m-0"><i class="fa-solid fa-shopping-bag me-2 text-warning"></i> Giỏ hàng của bạn
+        </h4>
+        <button class="btn-close btn-close-white" id="btnCloseCart"></button>
+      </div>
+
+      <!-- Scrollable Cart List -->
+      <div class="flex-grow-1 overflow-y-auto py-3" id="cartItemsList">
+        <!-- Rendered items -->
+      </div>
+
+      <!-- Checkout Information Form -->
+      <div class="border-top border-secondary pt-3" id="cartFooter">
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-secondary fw-semibold">Tổng thanh toán:</span>
+          <h4 class="text-warning fw-bold m-0" id="cartTotal">0 VNĐ</h4>
+        </div>
+
+        <form id="checkoutForm" class="d-none">
+          <div class="mb-2">
+            <input type="text" class="form-control form-control-sm" id="custName" placeholder="Họ và tên khách hàng"
+              required>
+          </div>
+          <div class="mb-2">
+            <input type="text" class="form-control form-control-sm" id="custPhone" placeholder="Số điện thoại" required>
+          </div>
+          <div class="mb-3">
+            <input type="text" class="form-control form-control-sm" id="custAddress" placeholder="Địa chỉ giao nhận"
+              required>
+          </div>
+          <button type="submit" class="btn btn-gradient w-100 py-2" id="btnSubmitCheckout">
+            <i class="fa-solid fa-credit-card me-1"></i> Thanh toán đơn hàng
+          </button>
+        </form>
+        <div id="checkoutAuthNotice" class="alert alert-warning text-center py-2" style="font-size: 0.85rem;">
+          Vui lòng đăng nhập với tài khoản Khách hàng để thanh toán.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal (Login/Register) -->
+  <div class="modal fade" id="authModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-title fw-bold" id="authModalTitle">Đăng Nhập Hệ Thống</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="authForm">
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold">Tên đăng nhập:</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-secondary"><i
+                    class="fa-solid fa-user"></i></span>
+                <input type="text" class="form-control" id="authUsername" placeholder="Nhập tên tài khoản..." required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold">Mật khẩu:</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-secondary"><i
+                    class="fa-solid fa-lock"></i></span>
+                <input type="password" class="form-control" id="authPassword" placeholder="Nhập mật khẩu..." required>
+              </div>
+            </div>
+            <div class="mb-3 d-none" id="authConfirmPasswordContainer">
+              <label class="form-label text-secondary fw-semibold">Xác nhận mật khẩu:</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-secondary"><i
+                    class="fa-solid fa-lock"></i></span>
+                <input type="password" class="form-control" id="authConfirmPassword" placeholder="Nhập lại mật khẩu...">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-gradient w-100 py-2 mt-2" id="btnAuthSubmit">Đăng nhập</button>
+            
+            <!-- Đăng nhập bằng Google / GitHub -->
+            <div id="socialLoginContainer" class="mt-3">
+              <div class="text-center my-2 text-muted font-weight-bold" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Hoặc</div>
+              
+              <a href="../index.php?url=api/account/googleLogin" class="btn btn-outline-danger btn-sm w-100 font-weight-bold d-flex align-items-center justify-content-center py-2" style="border-width: 2px; border-radius: 10px;">
+                <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 48 48" style="margin-right: 8px;">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                  <path fill="#4285F4" d="M46.5 24c0-1.61-.15-3.16-.42-4.67H24v8.87h12.71c-.55 2.87-2.17 5.3-4.61 6.93l7.2 5.58C43.51 36.4 46.5 30.76 46.5 24z" />
+                  <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z" />
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.2-5.58c-2.11 1.41-4.8 2.25-8.69 2.25-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+                Đăng nhập bằng Google
+              </a>
+              
+              <a href="../index.php?url=api/account/githubLogin" class="btn btn-outline-light btn-sm w-100 font-weight-bold d-flex align-items-center justify-content-center mt-2 py-2" style="border-width: 2px; border-radius: 10px;">
+                <svg class="me-2 text-white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                Đăng nhập bằng GitHub
+              </a>
+            </div>
+          </form>
+          <div class="text-center mt-3" style="font-size: 0.9rem;">
+            <span class="text-secondary" id="authToggleText">Chưa có tài khoản?</span>
+            <a href="#" class="text-info fw-bold text-decoration-none ms-1" id="btnToggleAuthMode">Đăng ký ngay</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Product Modal (Admin Only) -->
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-title fw-bold" id="productModalTitle">Quản Lý Sản Phẩm</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="productForm" enctype="multipart/form-data">
+            <input type="hidden" id="prodId">
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold">Tên sản phẩm:</label>
+              <input type="text" class="form-control" id="prodName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold">Danh mục:</label>
+              <select class="form-select" id="prodCategory" required>
+                <!-- Loaded dynamically -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold">Giá bán (VNĐ):</label>
+              <input type="number" class="form-control" id="prodPrice" required min="1">
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold">Mô tả chi tiết:</label>
+              <textarea class="form-control" id="prodDescription" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold d-block">Ảnh đại diện:</label>
+              <button type="button" class="btn btn-outline-light btn-sm mb-2" id="btnTriggerImage">
+                <i class="fa-solid fa-image me-1"></i> Chọn ảnh đại diện
+              </button>
+              <input type="file" class="d-none" id="prodImage" accept="image/*">
+              <div id="newImagePreviewContainer" class="mt-2 d-none">
+                <span style="font-size: 0.8rem;" class="text-info d-block">Ảnh đại diện mới chọn:</span>
+                <img id="newImagePreview" src="" class="img-thumbnail" style="max-height: 80px;">
+              </div>
+              <div id="editImagePreviewContainer" class="mt-2 d-none">
+                <span style="font-size: 0.8rem;" class="text-secondary d-block">Ảnh đại diện hiện tại:</span>
+                <img id="editImagePreview" src="" class="img-thumbnail" style="max-height: 80px;">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary fw-semibold d-block">Album ảnh chi tiết:</label>
+              <button type="button" class="btn btn-outline-info btn-sm mb-2" id="btnTriggerGallery">
+                <i class="fa-solid fa-images me-1"></i> Chọn các ảnh chi tiết
+              </button>
+              <input type="file" class="d-none" id="prodGallery" accept="image/*" multiple>
+              <div id="newGalleryPreviewContainer" class="mt-2 d-none">
+                <span style="font-size: 0.8rem;" class="text-info d-block">Ảnh chi tiết mới chọn:</span>
+                <div id="newGalleryPreview" class="d-flex gap-2 flex-wrap mt-1"></div>
+              </div>
+              <div id="editGalleryPreviewContainer" class="mt-2 d-none">
+                <span style="font-size: 0.8rem;" class="text-secondary d-block">Album ảnh chi tiết hiện tại:</span>
+                <div id="editGalleryPreview" class="d-flex gap-2 flex-wrap mt-1"></div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-gradient w-100 py-2 mt-2">Lưu dữ liệu</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Details Modal (Xem Chi Tiết) -->
+  <div class="modal fade" id="productDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-title fw-bold" id="detailTitle">Chi Tiết Sản Phẩm</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-4">
+            <div class="col-md-5 text-center">
+              <div class="position-relative overflow-hidden rounded border border-secondary mb-3 p-2 bg-dark bg-opacity-25" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                <img id="detailImage" src="" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain; transition: transform 0.3s ease;">
+              </div>
+              <div id="btnRotateImageContainer" class="mb-3 d-none">
+                <button type="button" class="btn btn-outline-info btn-sm" id="btnRotateImage">
+                  <i class="fa-solid fa-rotate-right me-1"></i> Rotate
+                </button>
+              </div>
+              <div id="detailGallery" class="d-flex gap-2 flex-wrap justify-content-center"></div>
+            </div>
+            <div class="col-md-7">
+              <span class="badge bg-secondary mb-2" id="detailCategory">Danh mục</span>
+              <h3 class="font-title fw-bold text-white mb-2" id="detailName">Tên sản phẩm</h3>
+              <h4 class="text-warning fw-bold mb-3" id="detailPrice">0 VNĐ</h4>
+              <p class="text-secondary" style="font-size: 0.95rem; white-space: pre-wrap; height: 180px; overflow-y: auto;" id="detailDescription">Mô tả chi tiết</p>
+              <div class="mt-4" id="detailActionContainer">
+                <!-- Action button dynamically set based on role -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery & Bootstrap Bundle -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Cấu hình URL endpoint của API
+    const API_BASE = '../index.php?url=api';
+
+    // State ứng dụng
+    let token = localStorage.getItem('api_token') || '';
+    let user = JSON.parse(localStorage.getItem('api_user')) || null;
+    let cart = JSON.parse(localStorage.getItem('api_cart')) || [];
+    let isLoginMode = true; // Chế độ Modal Login hoặc Register
+
+    // Cài đặt chung cho tất cả các AJAX request
+    $.ajaxSetup({
+      beforeSend: function (xhr) {
+        if (token) {
+          xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        }
+      }
+    });
+
+    $(document).ready(function () {
+      // Xử lý đăng nhập bằng Mạng xã hội thông qua Redirect Parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('token');
+      const urlUsername = urlParams.get('username');
+      const urlRole = urlParams.get('role');
+      const urlError = urlParams.get('error');
+
+      if (urlToken && urlUsername && urlRole) {
+        token = decodeURIComponent(urlToken);
+        user = {
+          username: decodeURIComponent(urlUsername),
+          role: decodeURIComponent(urlRole)
+        };
+        localStorage.setItem('api_token', token);
+        localStorage.setItem('api_user', JSON.stringify(user));
+
+        // Xóa các tham số trên URL để tránh lặp lại hành động khi reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Thêm trễ nhẹ để hiển thị thông báo đẹp mắt
+        setTimeout(() => {
+          showToast(`Chào mừng ${user.username}! Đăng nhập liên kết thành công.`, 'success');
+        }, 300);
+      } else if (urlError) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setTimeout(() => {
+          showToast('Đăng nhập bằng mạng xã hội thất bại!', 'danger');
+        }, 300);
+      }
+
+      // Khởi tạo giao diện ban đầu
+      updateAuthUI();
+      renderCart();
+      fetchProducts();
+      fetchCategories();
+
+      // Mở modal đăng nhập (sử dụng delegated events)
+      $(document).on('click', '#btnShowLoginModal', function () {
+        setAuthMode(true);
+        $('#authModal').modal('show');
+      });
+
+      // Mở modal đăng ký (sử dụng delegated events)
+      $(document).on('click', '#btnShowRegisterModal', function () {
+        setAuthMode(false);
+        $('#authModal').modal('show');
+      });
+
+      // Xem chi tiết sản phẩm (sử dụng delegated events)
+      $(document).on('click', '.btn-view-product', function () {
+        const prodId = $(this).data('id');
+        $.ajax({
+          url: `${API_BASE}/product/show/${prodId}`,
+          method: 'GET',
+          success: function (res) {
+            const prod = res.data.product;
+            const gallery = res.data.gallery || [];
+            
+            $('#detailName').text(prod.name);
+            $('#detailPrice').text(Math.round(prod.price).toLocaleString('vi-VN') + ' VNĐ');
+            $('#detailDescription').text(prod.description || 'Không có mô tả cho sản phẩm này.');
+            $('#detailCategory').text(prod.category_name || 'Khác');
+            
+            const mainImg = prod.image ? '../' + prod.image : 'https://placehold.co/600x400/1e293b/f8fafc?text=TachTachStore';
+            $('#detailImage').attr('src', mainImg);
+            resetImageRotation();
+            checkImageOrientation();
+            
+            // Hiển thị ảnh phụ album
+            let galleryHtml = `
+              <img src="${mainImg}" class="img-thumbnail img-gallery-item" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer; border-color: var(--accent-color);">
+            `;
+            if (gallery.length > 0) {
+              gallery.forEach(img => {
+                galleryHtml += `
+                  <img src="../${img.image_path}" class="img-thumbnail img-gallery-item" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
+                `;
+              });
+            }
+            $('#detailGallery').html(galleryHtml);
+            
+            // Cấu hình các nút chức năng bên trong modal chi tiết
+            let actionHtml = '';
+            const isAdminUser = (user && user.role === 'admin');
+            if (isAdminUser) {
+              actionHtml = `
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-info btn-edit-product" data-id="${prod.id}" data-bs-dismiss="modal"><i class="fa-solid fa-edit"></i> Chỉnh sửa</button>
+                  <button class="btn btn-outline-danger btn-delete-product" data-id="${prod.id}" data-bs-dismiss="modal"><i class="fa-solid fa-trash"></i> Xóa sản phẩm</button>
+                </div>
+              `;
+            } else {
+              actionHtml = `
+                <button class="btn btn-gradient btn-add-to-cart" data-id="${prod.id}"><i class="fa-solid fa-cart-plus me-1"></i> Thêm vào giỏ hàng</button>
+              `;
+            }
+            $('#detailActionContainer').html(actionHtml);
+            
+            $('#productDetailModal').modal('show');
+          },
+          error: function () {
+            showToast('Không lấy được chi tiết sản phẩm.', 'danger');
+          }
+        });
+      });
+
+      // Xoay ảnh và kiểm tra định dạng ảnh
+      let currentRotation = 0;
+      function resetImageRotation() {
+        currentRotation = 0;
+        $('#detailImage').css('transform', 'rotate(0deg)');
+      }
+
+      function checkImageOrientation() {
+        const img = $('#detailImage')[0];
+        if (!img) return;
+        
+        if (img.complete) {
+          if (img.naturalWidth > img.naturalHeight) {
+            $('#btnRotateImageContainer').removeClass('d-none');
+          } else {
+            $('#btnRotateImageContainer').addClass('d-none');
+          }
+        } else {
+          $(img).one('load', function () {
+            if (this.naturalWidth > this.naturalHeight) {
+              $('#btnRotateImageContainer').removeClass('d-none');
+            } else {
+              $('#btnRotateImageContainer').addClass('d-none');
+            }
+          });
+        }
+      }
+
+      $(document).on('click', '#btnRotateImage', function () {
+        currentRotation = (currentRotation + 90) % 360;
+        const scale = (currentRotation === 90 || currentRotation === 270) ? 0.7 : 1;
+        $('#detailImage').css('transform', `rotate(${currentRotation}deg) scale(${scale})`);
+      });
+
+      // Click ảnh phụ để đổi ảnh chính
+      $(document).on('click', '.img-gallery-item', function () {
+        const src = $(this).attr('src');
+        $('#detailImage').attr('src', src);
+        $('.img-gallery-item').css('border-color', '');
+        $(this).css('border-color', 'var(--accent-color)');
+        resetImageRotation();
+        checkImageOrientation();
+      });
+
+      // Chuyển đổi giữa Đăng ký và Đăng nhập
+      $('#btnToggleAuthMode').click(function (e) {
+        e.preventDefault();
+        setAuthMode(!isLoginMode);
+      });
+
+      // Xử lý submit Form Auth (Đăng nhập / Đăng ký)
+      $('#authForm').submit(function (e) {
+        e.preventDefault();
+        const username = $('#authUsername').val().trim();
+        const password = $('#authPassword').val();
+
+        if (isLoginMode) {
+          // Xử lý đăng nhập
+          $.ajax({
+            url: `${API_BASE}/account/login`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ username, password }),
+            success: function (res) {
+              token = res.token;
+              user = res.user;
+              localStorage.setItem('api_token', token);
+              localStorage.setItem('api_user', JSON.stringify(user));
+
+              $('#authModal').modal('hide');
+              $('#authForm')[0].reset();
+
+              showToast('Đăng nhập hệ thống thành công!', 'success');
+              updateAuthUI();
+              fetchProducts(); // Tải lại danh sách sản phẩm để hiển thị công cụ chỉnh sửa nếu là Admin
+            },
+            error: function (err) {
+              const msg = err.responseJSON ? err.responseJSON.message : 'Tên tài khoản hoặc mật khẩu không đúng.';
+              showToast(msg, 'danger');
+            }
+          });
+        } else {
+          // Xử lý đăng ký
+          const confirm_password = $('#authConfirmPassword').val();
+          $.ajax({
+            url: `${API_BASE}/account/register`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ username, password, confirm_password }),
+            success: function (res) {
+              showToast('Tạo tài khoản thành công! Vui lòng đăng nhập.', 'success');
+              setAuthMode(true); // Quay lại đăng nhập
+              $('#authPassword').val('');
+              $('#authConfirmPassword').val('');
+            },
+            error: function (err) {
+              const msg = err.responseJSON ? err.responseJSON.message : 'Đăng ký tài khoản thất bại.';
+              showToast(msg, 'danger');
+            }
+          });
+        }
+      });
+
+      // Đăng xuất
+      $(document).on('click', '#btnLogout', function (e) {
+        e.preventDefault();
+        token = '';
+        user = null;
+        localStorage.removeItem('api_token');
+        localStorage.removeItem('api_user');
+
+        showToast('Đăng xuất thành công!', 'info');
+        updateAuthUI();
+        fetchProducts();
+      });
+
+      // Toggle Giỏ hàng
+      $('#btnOpenCart').click(function () {
+        $('#cartDrawer').addClass('active');
+        $('#cartBackdrop').fadeIn(200);
+      });
+
+      $('#btnCloseCart, #cartBackdrop').click(function () {
+        $('#cartDrawer').removeClass('active');
+        $('#cartBackdrop').fadeOut(200);
+      });
+
+      // Xử lý thêm vào giỏ hàng
+      $(document).on('click', '.btn-add-to-cart', function () {
+        const prodId = $(this).data('id');
+        const prodIndex = cart.findIndex(item => item.product_id === prodId);
+
+        if (prodIndex > -1) {
+          cart[prodIndex].quantity++;
+        } else {
+          cart.push({ product_id: prodId, quantity: 1 });
+        }
+
+        localStorage.setItem('api_cart', JSON.stringify(cart));
+        renderCart();
+        showToast('Đã thêm sản phẩm vào giỏ hàng.', 'success');
+      });
+
+      // Thay đổi số lượng sản phẩm trong giỏ hàng
+      $(document).on('change', '.cart-qty-input', function () {
+        const prodId = $(this).data('id');
+        const qty = parseInt($(this).val());
+
+        if (qty <= 0) {
+          removeCartItem(prodId);
+        } else {
+          const prodIndex = cart.findIndex(item => item.product_id === prodId);
+          if (prodIndex > -1) {
+            cart[prodIndex].quantity = qty;
+            localStorage.setItem('api_cart', JSON.stringify(cart));
+            renderCart();
+          }
+        }
+      });
+
+      // Xóa sản phẩm khỏi giỏ hàng
+      $(document).on('click', '.btn-remove-cart-item', function () {
+        const prodId = $(this).data('id');
+        removeCartItem(prodId);
+      });
+
+      // Gửi thanh toán đơn hàng (Checkout)
+      $('#checkoutForm').submit(function (e) {
+        e.preventDefault();
+
+        if (cart.length === 0) {
+          showToast('Giỏ hàng trống!', 'warning');
+          return;
+        }
+
+        const checkoutPayload = {
+          customer_name: $('#custName').val().trim(),
+          customer_phone: $('#custPhone').val().trim(),
+          customer_address: $('#custAddress').val().trim(),
+          cart: cart
+        };
+
+        $.ajax({
+          url: `${API_BASE}/cart/checkout`,
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(checkoutPayload),
+          success: function (res) {
+            showToast('Đặt hàng và thanh toán thành công!', 'success');
+            cart = [];
+            localStorage.removeItem('api_cart');
+            renderCart();
+            $('#checkoutForm')[0].reset();
+            $('#cartDrawer').removeClass('active');
+            $('#cartBackdrop').fadeOut(200);
+          },
+          error: function (err) {
+            const msg = err.responseJSON ? err.responseJSON.message : 'Có lỗi khi đặt hàng.';
+            showToast(msg, 'danger');
+          }
+        });
+      });
+
+      // Kích hoạt click chọn file từ button tùy chỉnh
+      $('#btnTriggerImage').click(function () {
+        $('#prodImage').click();
+      });
+
+      $('#btnTriggerGallery').click(function () {
+        $('#prodGallery').click();
+      });
+
+      // Hiển thị xem trước ảnh đại diện mới chọn
+      $('#prodImage').change(function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            $('#newImagePreview').attr('src', e.target.result);
+            $('#newImagePreviewContainer').removeClass('d-none');
+          }
+          reader.readAsDataURL(file);
+        } else {
+          $('#newImagePreviewContainer').addClass('d-none');
+          $('#newImagePreview').attr('src', '');
+        }
+      });
+
+      // Hiển thị xem trước album ảnh chi tiết mới chọn
+      $('#prodGallery').change(function () {
+        const files = this.files;
+        $('#newGalleryPreview').html('');
+        if (files.length > 0) {
+          for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              $('#newGalleryPreview').append(`
+                <img src="${e.target.result}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+              `);
+            }
+            reader.readAsDataURL(files[i]);
+          }
+          $('#newGalleryPreviewContainer').removeClass('d-none');
+        } else {
+          $('#newGalleryPreviewContainer').addClass('d-none');
+        }
+      });
+
+      // Mở modal thêm sản phẩm mới (Admin)
+      $('#btnOpenAddProductModal').click(function () {
+        $('#productForm')[0].reset();
+        $('#prodId').val('');
+        $('#editImagePreviewContainer').addClass('d-none');
+        $('#editGalleryPreviewContainer').addClass('d-none');
+        $('#editGalleryPreview').html('');
+        
+        // Dọn dẹp bản xem trước ảnh mới chọn
+        $('#newImagePreviewContainer').addClass('d-none');
+        $('#newImagePreview').attr('src', '');
+        $('#newGalleryPreviewContainer').addClass('d-none');
+        $('#newGalleryPreview').html('');
+
+        $('#productModalTitle').text('Thêm sản phẩm mới');
+        $('#productModal').modal('show');
+      });
+
+      // Sửa sản phẩm (Admin - Mở modal và fill data)
+      $(document).on('click', '.btn-edit-product', function () {
+        const prodId = $(this).data('id');
+
+        // Dọn dẹp bản xem trước ảnh mới chọn
+        $('#newImagePreviewContainer').addClass('d-none');
+        $('#newImagePreview').attr('src', '');
+        $('#newGalleryPreviewContainer').addClass('d-none');
+        $('#newGalleryPreview').html('');
+
+        $.ajax({
+          url: `${API_BASE}/product/show/${prodId}`,
+          method: 'GET',
+          success: function (res) {
+            const prod = res.data.product;
+            $('#prodId').val(prod.id);
+            $('#prodName').val(prod.name);
+            $('#prodPrice').val(Math.round(prod.price));
+            $('#prodDescription').val(prod.description);
+            $('#prodCategory').val(prod.category_id || 1);
+
+            if (prod.image) {
+              $('#editImagePreview').attr('src', '../' + prod.image);
+              $('#editImagePreviewContainer').removeClass('d-none');
+            } else {
+              $('#editImagePreviewContainer').addClass('d-none');
+            }
+
+            const gallery = res.data.gallery || [];
+            if (gallery.length > 0) {
+              let galleryHtml = '';
+              gallery.forEach(img => {
+                galleryHtml += `
+                  <img src="../${img.image_path}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                `;
+              });
+              $('#editGalleryPreview').html(galleryHtml);
+              $('#editGalleryPreviewContainer').removeClass('d-none');
+            } else {
+              $('#editGalleryPreview').html('');
+              $('#editGalleryPreviewContainer').addClass('d-none');
+            }
+
+            $('#productModalTitle').text('Cập nhật sản phẩm');
+            $('#productModal').modal('show');
+          },
+          error: function () {
+            showToast('Không lấy được thông tin chi tiết sản phẩm.', 'danger');
+          }
+        });
+      });
+
+      // Submit Form Thêm/Sửa sản phẩm (Admin)
+      $('#productForm').submit(function (e) {
+        e.preventDefault();
+        const prodId = $('#prodId').val();
+
+        const formData = new FormData();
+        formData.append('name', $('#prodName').val().trim());
+        formData.append('price', $('#prodPrice').val());
+        formData.append('description', $('#prodDescription').val().trim());
+        formData.append('category_id', $('#prodCategory').val());
+
+        const imageInput = $('#prodImage')[0].files[0];
+        if (imageInput) {
+          formData.append('image', imageInput);
+        }
+
+        const galleryInput = $('#prodGallery')[0].files;
+        if (galleryInput.length > 0) {
+          for (let i = 0; i < galleryInput.length; i++) {
+            formData.append('gallery[]', galleryInput[i]);
+          }
+        }
+
+        const isEdit = prodId !== '';
+        const apiUrl = isEdit ? `${API_BASE}/product/update/${prodId}` : `${API_BASE}/product/save`;
+
+        $.ajax({
+          url: apiUrl,
+          method: 'POST', // Dùng POST cho cả cập nhật chứa hình ảnh
+          data: formData,
+          processData: false, // Bắt buộc
+          contentType: false, // Bắt buộc
+          success: function (res) {
+            showToast(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm thành công!', 'success');
+            $('#productModal').modal('hide');
+            $('#productForm')[0].reset();
+            
+            // Dọn dẹp bản xem trước và file input
+            $('#newImagePreviewContainer').addClass('d-none');
+            $('#newImagePreview').attr('src', '');
+            $('#newGalleryPreviewContainer').addClass('d-none');
+            $('#newGalleryPreview').html('');
+            $('#prodImage').val('');
+            $('#prodGallery').val('');
+
+            fetchProducts();
+          },
+          error: function (err) {
+            const msg = err.responseJSON ? err.responseJSON.message : 'Lưu sản phẩm thất bại.';
+            showToast(msg, 'danger');
+          }
+        });
+      });
+
+      // Xóa sản phẩm (Admin)
+      $(document).on('click', '.btn-delete-product', function () {
+        const prodId = $(this).data('id');
+        if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+          $.ajax({
+            url: `${API_BASE}/product/delete/${prodId}`,
+            method: 'DELETE',
+            success: function (res) {
+              showToast('Đã xóa sản phẩm thành công!', 'success');
+              fetchProducts();
+            },
+            error: function (err) {
+              const msg = err.responseJSON ? err.responseJSON.message : 'Xóa sản phẩm thất bại.';
+              showToast(msg, 'danger');
+            }
+          });
+        }
+      });
+    });
+
+    // Cài đặt UI Auth Modal (Login/Register)
+    function setAuthMode(loginMode) {
+      isLoginMode = loginMode;
+      if (isLoginMode) {
+        $('#authModalTitle').text('Đăng Nhập Hệ Thống');
+        $('#authConfirmPasswordContainer').addClass('d-none');
+        $('#btnAuthSubmit').text('Đăng nhập');
+        $('#authToggleText').text('Chưa có tài khoản?');
+        $('#btnToggleAuthMode').text('Đăng ký ngay');
+        $('#socialLoginContainer').removeClass('d-none');
+      } else {
+        $('#authModalTitle').text('Đăng Ký Tài Khoản');
+        $('#authConfirmPasswordContainer').removeClass('d-none');
+        $('#btnAuthSubmit').text('Đăng ký tài khoản');
+        $('#authToggleText').text('Đã có tài khoản?');
+        $('#btnToggleAuthMode').text('Đăng nhập');
+        $('#socialLoginContainer').addClass('d-none');
+      }
+    }
+
+    // Cập nhật trạng thái Authentication trên giao diện
+    function updateAuthUI() {
+      if (token && user) {
+        let roleBadge = user.role === 'admin'
+          ? '<span class="badge bg-danger ms-1">Admin</span>'
+          : '<span class="badge bg-success ms-1">User</span>';
+
+        $('#authSection').html(`
+          <div class="dropdown">
+            <button class="btn btn-outline-light dropdown-toggle px-3 py-2" type="button" data-bs-toggle="dropdown" style="border-radius: 10px;">
+              <i class="fa-solid fa-user-circle me-1"></i> ${user.username} ${roleBadge}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
+              <li><a class="dropdown-item text-danger fw-semibold" href="#" id="btnLogout"><i class="fa-solid fa-sign-out-alt me-1"></i> Đăng xuất</a></li>
+            </ul>
+          </div>
+        `);
+
+        // Hiển thị panel Admin nếu có quyền
+        if (user.role === 'admin') {
+          $('#adminControlsContainer').removeClass('d-none');
+          $('#checkoutForm').addClass('d-none');
+          $('#checkoutAuthNotice')
+            .removeClass('d-none')
+            .text('Tài khoản Admin không hỗ trợ thanh toán đơn hàng (Chỉ quản lý).')
+            .addClass('alert-danger')
+            .removeClass('alert-warning');
+        } else {
+          $('#adminControlsContainer').addClass('d-none');
+          $('#checkoutForm').removeClass('d-none');
+          $('#checkoutAuthNotice').addClass('d-none');
+        }
+      } else {
+        $('#authSection').html(`
+          <button class="btn btn-outline-light btn-sm px-3 py-2" style="border-radius: 10px;" id="btnShowLoginModal">Đăng nhập</button>
+          <button class="btn btn-gradient btn-sm px-3 py-2" id="btnShowRegisterModal">Đăng ký</button>
+        `);
+        $('#adminControlsContainer').addClass('d-none');
+        $('#checkoutForm').addClass('d-none');
+        $('#checkoutAuthNotice')
+          .removeClass('d-none')
+          .text('Vui lòng đăng nhập với tài khoản Khách hàng để thanh toán.')
+          .addClass('alert-warning')
+          .removeClass('alert-danger');
+      }
+    }
+
+    // Tải danh sách sản phẩm từ API và hiển thị
+    function fetchProducts() {
+      const container = $('#productsContainer');
+      container.html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><span class="ms-2 text-secondary">Đang tải sản phẩm...</span></div>');
+
+      $.ajax({
+        url: `${API_BASE}/product/list`,
+        method: 'GET',
+        success: function (res) {
+          const products = res.data;
+          if (products.length === 0) {
+            container.html('<div class="col-12 text-center text-secondary py-5">Chưa có sản phẩm nào.</div>');
+            return;
+          }
+
+          let html = '';
+          const isAdminUser = (user && user.role === 'admin');
+
+          products.forEach(p => {
+            const formattedPrice = Math.round(p.price).toLocaleString('vi-VN') + ' VNĐ';
+            const imgUrl = p.image ? '../' + p.image : 'https://placehold.co/600x400/1e293b/f8fafc?text=TachTachStore';
+
+            let actionButtons = '';
+            if (isAdminUser) {
+              actionButtons = `
+                <div class="d-flex gap-2 mb-2 w-100">
+                  <button class="btn btn-outline-light btn-sm flex-grow-1 btn-view-product" data-id="${p.id}"><i class="fa-solid fa-eye"></i> Xem</button>
+                  <button class="btn btn-outline-info btn-sm flex-grow-1 btn-edit-product" data-id="${p.id}"><i class="fa-solid fa-edit"></i> Sửa</button>
+                </div>
+                <button class="btn btn-outline-danger btn-sm w-100 btn-delete-product" data-id="${p.id}"><i class="fa-solid fa-trash"></i> Xóa</button>
+              `;
+            } else {
+              actionButtons = `
+                <div class="d-flex gap-2 w-100">
+                  <button class="btn btn-outline-light btn-sm flex-grow-1 btn-view-product" data-id="${p.id}"><i class="fa-solid fa-eye"></i> Xem</button>
+                  <button class="btn btn-gradient btn-sm flex-grow-1 btn-add-to-cart" data-id="${p.id}"><i class="fa-solid fa-cart-plus"></i> Thêm</button>
+                </div>
+              `;
+            }
+
+            html += `
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card glass-card h-100 overflow-hidden text-light">
+                  <div class="product-img-container">
+                    <span class="category-badge">${p.category_name || 'Khác'}</span>
+                    <img src="${imgUrl}" class="product-img" alt="${p.name}" onerror="this.src='https://placehold.co/600x400/1e293b/f8fafc?text=TachTachStore'">
+                  </div>
+                  <div class="card-body d-flex flex-column p-3">
+                    <h5 class="card-title font-title fw-bold text-truncate mb-1" title="${p.name}">${p.name}</h5>
+                    <p class="card-text text-secondary mb-3" style="font-size: 0.85rem; height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                      ${p.description || 'Không có mô tả cho sản phẩm này.'}
+                    </p>
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary" style="font-size: 0.8rem;">Giá bán:</span>
+                        <span class="text-warning fw-bold font-title fs-5">${formattedPrice}</span>
+                      </div>
+                      ${actionButtons}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          container.html(html);
+        },
+        error: function () {
+          container.html('<div class="col-12 text-center text-danger py-5"><i class="fa-solid fa-triangle-exclamation fs-3 mb-2 d-block"></i> Không thể tải danh sách sản phẩm.</div>');
+        }
+      });
+    }
+
+    // Hiển thị/Render danh sách giỏ hàng
+    function renderCart() {
+      const listContainer = $('#cartItemsList');
+      const badge = $('#cartBadge');
+      const totalLabel = $('#cartTotal');
+
+      badge.text(cart.reduce((sum, item) => sum + item.quantity, 0));
+
+      if (cart.length === 0) {
+        listContainer.html('<div class="text-center py-5 text-secondary"><i class="fa-solid fa-shopping-cart fs-1 mb-2 d-block opacity-25"></i> Giỏ hàng của bạn đang trống.</div>');
+        totalLabel.text('0 VNĐ');
+        return;
+      }
+
+      listContainer.html('<div class="text-center py-4"><div class="spinner-border spinner-border-sm text-warning" role="status"></div></div>');
+
+      // Tải danh sách tất cả sản phẩm để có thông tin chi tiết (tên, giá...)
+      $.ajax({
+        url: `${API_BASE}/product/list`,
+        method: 'GET',
+        success: function (res) {
+          const allProducts = res.data;
+          let html = '';
+          let totalAmount = 0;
+
+          cart.forEach(item => {
+            const product = allProducts.find(p => p.id == item.product_id);
+            if (product) {
+              const subtotal = product.price * item.quantity;
+              totalAmount += subtotal;
+
+              html += `
+                <div class="d-flex align-items-center justify-content-between mb-3 bg-dark bg-opacity-50 p-2 rounded border border-secondary">
+                  <div class="me-2" style="max-width: 200px;">
+                    <h6 class="text-truncate fw-semibold m-0 text-white">${product.name}</h6>
+                    <span class="text-secondary" style="font-size: 0.8rem;">${Math.round(product.price).toLocaleString('vi-VN')} VNĐ</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <input type="number" class="form-control form-control-sm text-center cart-qty-input" data-id="${product.id}" value="${item.quantity}" style="width: 60px;" min="1">
+                    <button class="btn btn-outline-danger btn-sm btn-remove-cart-item" data-id="${product.id}"><i class="fa-solid fa-trash-can"></i></button>
+                  </div>
+                </div>
+              `;
+            }
+          });
+
+          listContainer.html(html);
+          totalLabel.text(totalAmount.toLocaleString('vi-VN') + ' VNĐ');
+        },
+        error: function () {
+          listContainer.html('<div class="text-center text-danger py-4">Lỗi đồng bộ sản phẩm giỏ hàng.</div>');
+        }
+      });
+    }
+
+    // Xóa vật phẩm khỏi giỏ hàng
+    function removeCartItem(prodId) {
+      cart = cart.filter(item => item.product_id !== prodId);
+      localStorage.setItem('api_cart', JSON.stringify(cart));
+      renderCart();
+      showToast('Đã xóa sản phẩm khỏi giỏ hàng.', 'info');
+    }
+
+    // Tải danh mục sản phẩm từ API và điền vào form select
+    function fetchCategories() {
+      $.ajax({
+        url: `${API_BASE}/category/list`,
+        method: 'GET',
+        success: function (res) {
+          const categories = res.data;
+          let html = '';
+          categories.forEach(c => {
+            html += `<option value="${c.id}">${c.name}</option>`;
+          });
+          $('#prodCategory').html(html);
+        },
+        error: function () {
+          showToast('Không thể tải danh mục sản phẩm từ hệ thống.', 'danger');
+        }
+      });
+    }
+
+    // Toast hiển thị thông báo
+    function showToast(message, type = 'info') {
+      const toastId = 'toast_' + Date.now();
+      const icon = type === 'success' ? 'fa-circle-check text-success' : (type === 'danger' ? 'fa-circle-exclamation text-danger' : 'fa-circle-info text-info');
+
+      const html = `
+        <div id="${toastId}" class="custom-toast p-3 d-flex align-items-center mb-2" style="border-left-color: ${type === 'success' ? '#10b981' : (type === 'danger' ? '#ef4444' : '#3b82f6')};">
+          <i class="fa-solid ${icon} fs-4 me-3"></i>
+          <div class="flex-grow-1 fw-medium">${message}</div>
+          <button type="button" class="btn-close btn-close-white ms-2" onclick="$('#${toastId}').fadeOut(200, function(){ $(this).remove(); });"></button>
+        </div>
+      `;
+
+      $('#toastContainer').append(html);
+
+      // Tự động biến mất sau 3.5 giây
+      setTimeout(() => {
+        $(`#${toastId}`).fadeOut(300, function () {
+          $(this).remove();
+        });
+      }, 3500);
+    }
+  </script>
+</body>
+
+</html>

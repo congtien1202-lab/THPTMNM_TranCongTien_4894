@@ -71,6 +71,14 @@ class UserModel
             $user = $stmt->fetch(PDO::FETCH_OBJ);
             
             if ($user) {
+                // Đảm bảo cập nhật provider thành 'google' nếu chưa có hoặc khác
+                if (!isset($user->provider) || $user->provider !== 'google') {
+                    $updateQuery = "UPDATE users SET provider = 'google' WHERE id = :id";
+                    $updateStmt = $this->db->prepare($updateQuery);
+                    $updateStmt->bindParam(':id', $user->id);
+                    $updateStmt->execute();
+                    $user->provider = 'google';
+                }
                 return $user;
             }
             
@@ -78,7 +86,7 @@ class UserModel
             $randomPassword = bin2hex(random_bytes(16));
             $hashedPassword = password_hash($randomPassword, PASSWORD_BCRYPT);
             
-            $query = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'user')";
+            $query = "INSERT INTO users (username, password, role, provider) VALUES (:username, :password, 'user', 'google')";
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':username', $email);
             $stmt->bindParam(':password', $hashedPassword);
@@ -88,7 +96,8 @@ class UserModel
                 return (object)[
                     'id' => $newId,
                     'username' => $email,
-                    'role' => 'user'
+                    'role' => 'user',
+                    'provider' => 'google'
                 ];
             }
             return false;
@@ -109,6 +118,14 @@ class UserModel
             $user = $stmt->fetch(PDO::FETCH_OBJ);
             
             if ($user) {
+                // Đảm bảo cập nhật provider thành 'github' nếu chưa có hoặc khác
+                if (!isset($user->provider) || $user->provider !== 'github') {
+                    $updateQuery = "UPDATE users SET provider = 'github' WHERE id = :id";
+                    $updateStmt = $this->db->prepare($updateQuery);
+                    $updateStmt->bindParam(':id', $user->id);
+                    $updateStmt->execute();
+                    $user->provider = 'github';
+                }
                 return $user;
             }
             
@@ -116,7 +133,7 @@ class UserModel
             $randomPassword = bin2hex(random_bytes(16));
             $hashedPassword = password_hash($randomPassword, PASSWORD_BCRYPT);
             
-            $query = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'user')";
+            $query = "INSERT INTO users (username, password, role, provider) VALUES (:username, :password, 'user', 'github')";
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':username', $dbUsername);
             $stmt->bindParam(':password', $hashedPassword);
@@ -126,7 +143,8 @@ class UserModel
                 return (object)[
                     'id' => $newId,
                     'username' => $dbUsername,
-                    'role' => 'user'
+                    'role' => 'user',
+                    'provider' => 'github'
                 ];
             }
             return false;

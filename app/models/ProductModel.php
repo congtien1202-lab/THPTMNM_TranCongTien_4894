@@ -69,6 +69,14 @@ class ProductModel
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }   
 
+    public function deleteGalleryImages($product_id)
+    {
+        $query = "DELETE FROM product_image WHERE product_id = :product_id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':product_id', $product_id);
+        return $stmt->execute();
+    }
+
     public function updateProduct($id, $name, $description, $price, $category_id, $image = null)
     {
         // Cập nhật câu lệnh SQL để lưu cả đường dẫn ảnh mới

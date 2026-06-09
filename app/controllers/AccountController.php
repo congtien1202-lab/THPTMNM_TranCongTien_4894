@@ -162,6 +162,18 @@ class AccountController
                     // Đăng nhập hoặc tạo mới người dùng
                     $user = $this->userModel->findOrCreateGoogleUser($email, $name);
                     if ($user) {
+                        $state = $_GET['state'] ?? '';
+                        if ($state === 'api_google_state') {
+                            require_once 'app/helpers/JwtHelper.php';
+                            $payload = [
+                                'user_id' => $user->id,
+                                'username' => $user->username,
+                                'role' => $user->role ?? 'user'
+                            ];
+                            $token = JwtHelper::generate($payload);
+                            header('Location: /TranCongTien_4894/public/api_demo.html?token=' . urlencode($token) . '&username=' . urlencode($user->username) . '&role=' . urlencode($user->role ?? 'user'));
+                            exit();
+                        }
                         SessionHelper::login($user);
                         header('Location: /TranCongTien_4894/index.php?url=Product/list');
                         exit();
@@ -171,6 +183,11 @@ class AccountController
         }
 
         // Chuyển hướng về login nếu có lỗi xảy ra
+        $state = $_GET['state'] ?? '';
+        if ($state === 'api_google_state') {
+            header('Location: /TranCongTien_4894/public/api_demo.html?error=google_login_failed');
+            exit();
+        }
         header('Location: /TranCongTien_4894/index.php?url=Account/login');
         exit();
     }
@@ -252,6 +269,18 @@ class AccountController
                     // Đăng nhập hoặc tạo mới tài khoản GitHub
                     $user = $this->userModel->findOrCreateGithubUser($githubUsername);
                     if ($user) {
+                        $state = $_GET['state'] ?? '';
+                        if ($state === 'api_github_state') {
+                            require_once 'app/helpers/JwtHelper.php';
+                            $payload = [
+                                'user_id' => $user->id,
+                                'username' => $user->username,
+                                'role' => $user->role ?? 'user'
+                            ];
+                            $token = JwtHelper::generate($payload);
+                            header('Location: /TranCongTien_4894/public/api_demo.html?token=' . urlencode($token) . '&username=' . urlencode($user->username) . '&role=' . urlencode($user->role ?? 'user'));
+                            exit();
+                        }
                         SessionHelper::login($user);
                         header('Location: /TranCongTien_4894/index.php?url=Product/list');
                         exit();
@@ -261,6 +290,11 @@ class AccountController
         }
 
         // Chuyển hướng về trang đăng nhập nếu có lỗi
+        $state = $_GET['state'] ?? '';
+        if ($state === 'api_github_state') {
+            header('Location: /TranCongTien_4894/public/api_demo.html?error=github_login_failed');
+            exit();
+        }
         header('Location: /TranCongTien_4894/index.php?url=Account/login');
         exit();
     }
